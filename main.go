@@ -10,3 +10,8 @@ type MongoInstance struct {
 	client *mongo.Client
 	DB     *mongo.Database
 }
+
+var mg MongoInstance
+
+const dbName = "hrms"
+const mongoUri = ""
