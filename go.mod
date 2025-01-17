@@ -2,7 +2,10 @@ module github.com/torcuata22/hrms-mongo
 
 go 1.23.3
 
-require go.mongodb.org/mongo-driver v1.17.2
+require (
+	github.com/joho/godotenv v1.5.1
+	go.mongodb.org/mongo-driver v1.17.2
+)
 
 require (
 	github.com/golang/snappy v0.0.4 // indirect
