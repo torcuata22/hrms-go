@@ -1,0 +1,22 @@
+Regarding Connect()
+
+
+The reason why the modified code worked is because of the way Go handles function returns.
+
+In Go, when you declare a function, you can specify what type of value it returns. If you don't specify a return type, Go assumes that the function doesn't return anything (i.e., it's a "void" function).
+
+However, when you use the `return` statement in a function without a declared return type, Go gets confused. It's like you're trying to return a value from a function that doesn't expect to return anything.
+
+In the original code, the `Connect()` function didn't have a declared return type, but it was using the `return` statement to return `nil`. This caused the error "Connect() (no value) used as value".
+
+By adding the `error` return type to the `Connect()` function, we told Go that this function expects to return an error value. This allowed us to use the `return` statement to return `nil` (or any other error value) without causing a conflict.
+
+In the `main()` function, we then used the `if err := Connect(); err != nil` syntax to handle the error returned by `Connect()`. This is a common pattern in Go for handling errors returned by functions.
+
+So, to summarize:
+
+* Declaring a return type for the `Connect()` function allowed us to use the `return` statement without causing a conflict.
+* Using the `error` return type told Go that `Connect()` expects to return an error value.
+* Handling the error returned by `Connect()` in the `main()` function allowed us to catch and handle any errors that might occur during the connection process.
+
+I hope that helps clarify things!
