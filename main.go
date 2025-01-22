@@ -134,7 +134,31 @@ func DeleteEmployee(c *fiber.Ctx) error {
 		return fiber.ErrNotFound
 	}
 	return c.SendStatus(fiber.StatusNoContent)
+}
 
+func UpdateEmployee(c *fiber.Ctx) error {
+	id := c.Params("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	collection := mg.DB.Collection("employees")
+	filter := bson.M{"_id": objID}
+	update := bson.M{
+		"$set": bson.M{
+			"name":   c.FormValue("name"),
+			"salary": c.FormValue("salary"),
+			"age":    c.FormValue("age"),
+		},
+	}
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return fiber.ErrNotFound
+	}
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 func main() {
