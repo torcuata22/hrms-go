@@ -4,12 +4,14 @@ import (
 	"context"
 	"log"
 	"os"
-	"strconv"
+
+	//"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson" //binary json
-	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	//"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -72,14 +74,14 @@ func GetEmployees(c *fiber.Ctx) error {
 
 func GetEmployee(c *fiber.Ctx) error {
 	id := c.Params("id")
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return err
-	}
+	// objID, err := primitive.ObjectIDFromHex(id)
+	// if err != nil {
+	// 	return err
+	// }
 	var employee Employee
 	collection := mg.DB.Collection("employees")
-	filter := bson.M{"_id": objID} // fix: use ObjectId instead of string
-	err = collection.FindOne(context.Background(), filter).Decode(&employee)
+	filter := bson.M{"id": id} // fix: use ObjectId instead of string
+	err := collection.FindOne(context.Background(), filter).Decode(&employee)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return fiber.ErrNotFound
@@ -90,28 +92,13 @@ func GetEmployee(c *fiber.Ctx) error {
 }
 
 func CreateEmployee(c *fiber.Ctx) error {
-	id := primitive.NewObjectID()
-	name := c.FormValue("name")
-	salaryStr := c.FormValue("salary")
-	ageStr := c.FormValue("age")
-
-	salary, err := strconv.ParseFloat(salaryStr, 64)
-	if err != nil {
-		return err
-	}
-	age, err := strconv.Atoi(ageStr)
-	if err != nil {
+	var employee Employee
+	if err := c.BodyParser(&employee); err != nil {
 		return err
 	}
 
-	employee := Employee{
-		ID:     id.Hex(),
-		Name:   name,
-		Salary: salary,
-		Age:    age,
-	}
 	collection := mg.DB.Collection("employees")
-	_, err = collection.InsertOne(context.Background(), employee)
+	_, err := collection.InsertOne(context.Background(), employee)
 	if err != nil {
 		return err
 	}
@@ -120,12 +107,8 @@ func CreateEmployee(c *fiber.Ctx) error {
 
 func DeleteEmployee(c *fiber.Ctx) error {
 	id := c.Params("id")
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return err
-	}
 	collection := mg.DB.Collection("employees")
-	filter := bson.M{"_id": objID}
+	filter := bson.M{"id": id}
 	result, err := collection.DeleteOne(context.Background(), filter)
 	if err != nil {
 		return err
@@ -138,17 +121,21 @@ func DeleteEmployee(c *fiber.Ctx) error {
 
 func UpdateEmployee(c *fiber.Ctx) error {
 	id := c.Params("id")
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
+	collection := mg.DB.Collection("employees")
+	filter := bson.M{"id": id}
+
+	var employee Employee
+	if err := c.BodyParser(&employee); err != nil {
 		return err
 	}
-	collection := mg.DB.Collection("employees")
-	filter := bson.M{"_id": objID}
+
+	log.Printf("Received employee data: %+v", employee)
+
 	update := bson.M{
 		"$set": bson.M{
-			"name":   c.FormValue("name"),
-			"salary": c.FormValue("salary"),
-			"age":    c.FormValue("age"),
+			"name":   employee.Name,
+			"salary": employee.Salary,
+			"age":    employee.Age,
 		},
 	}
 	result, err := collection.UpdateOne(context.Background(), filter, update)
@@ -169,6 +156,8 @@ func main() {
 	app.Get("/employees", GetEmployees)
 	app.Get("/employee/:id", GetEmployee)
 	app.Post("/employees", CreateEmployee)
-	// app.Put("/employee/:id", EditEmployee)
-	// app.Delete("/employee/:id", DeleteEmployee)
+	app.Put("/employee/:id", UpdateEmployee)
+	app.Delete("/employee/:id", DeleteEmployee)
+
+	log.Fatal(app.Listen(":3000"))
 }
