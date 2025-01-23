@@ -1,21 +1,11 @@
 package main
 
 import (
-	//"context"
 	"log"
 
-	"github.com/torcuata22/hrms-mongo/database"
-
-	//"os"
-
-	//"strconv"
-
 	"github.com/gofiber/fiber/v2"
-	//"github.com/joho/godotenv"
-	//"go.mongodb.org/mongo-driver/bson" //binary json
-	//"go.mongodb.org/mongo-driver/bson/primitive"
-	//"go.mongodb.org/mongo-driver/mongo"
-	//"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/torcuata22/hrms-mongo/database"
+	"github.com/torcuata22/hrms-mongo/routes"
 )
 
 //Mongo DB struct
@@ -155,11 +145,6 @@ func main() {
 		log.Fatal(err)
 	}
 	app := fiber.New()
-	// app.Get("/employees", GetEmployees)
-	// app.Get("/employee/:id", GetEmployee)
-	// app.Post("/employees", CreateEmployee)
-	// app.Put("/employee/:id", UpdateEmployee)
-	// app.Delete("/employee/:id", DeleteEmployee)
-
+	routes.SetupRoutes(app)
 	log.Fatal(app.Listen(":3000"))
 }
