@@ -33,3 +33,7 @@ require (
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
 )
+
+replace github.com/torcuata22/hrms-mongo/database => ./database
+
+replace github.com/torcuata22/hrms-mongo/models => ./models

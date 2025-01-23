@@ -1,0 +1,3 @@
+Divide into separate packages
+Add tests
+Add front end (vue3? react? next?)
